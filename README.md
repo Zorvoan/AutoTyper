@@ -28,7 +28,7 @@ Vyber oblast na monitoru, OCR ji rozpozná a AutoTyper text postupně opíše do
 
 ### 2. Spusť installer
 
-Klikni pravým tlačítkem na `installer.bat` → **Spustit jako správce**
+Klikni pravým tlačítkem na `installer.bat` → **Spustit jako správce** - `Není povinné`
 
 Installer automaticky:
 - nainstaluje všechny Python knihovny (`customtkinter`, `pillow`, `pytesseract`, `pynput`)
