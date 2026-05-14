@@ -15,6 +15,8 @@ Vyber oblast na monitoru, OCR ji rozpozná a AutoTyper text postupně opíše do
 - 🔁 **Opakování** — text lze napsat vícekrát za sebou
 - 🔄 **Inverted mód** — napíše text pozpátku
 - ⌨️ **Hotkey F8** — spuštění bez klikání na tlačítko
+- ⏸️ **Auto-pauza** — psaní se automaticky pozastaví pokud je fokus na AutoTyperu místo cílového pole
+- 🔍 **Automatické nalezení Tesseractu** — není potřeba ručně nastavovat cestu
 
 ---
 
@@ -25,31 +27,24 @@ Vyber oblast na monitoru, OCR ji rozpozná a AutoTyper text postupně opíše do
 - **Python 3.10+** — [python.org](https://www.python.org/downloads/) — při instalaci zatrhnout **"Add Python to PATH"**
 - **winget** — součástí Windows 10/11
 
-### 1. Uprav cestu k Tesseractu
+### 1. Spusť installer
 
-Před spuštěním installeru otevři `Autotyper.py` a na **řádku 25** nastav svou cestu:
-
-```python
-pytesseract.pytesseract.tesseract_cmd = r"C:\Users\TVOJE_JMENO\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
-```
-
-> Tato cesta se zapečuje přímo do EXE — je důležité ji nastavit před sestavením.
-
-### 2. Spusť installer
-
-Klikni pravým tlačítkem na `installer.bat` → **Spustit jako správce** - `Není povinné`
+Dvakrát klikni na `installer.bat` (nebo pravým tlačítkem → **Spustit jako správce** pokud narazíš na problémy s oprávněními).
 
 Installer automaticky:
 - nainstaluje všechny Python knihovny (`customtkinter`, `pillow`, `pytesseract`, `pynput`, `pyinstaller`)
-- stáhne a nainstaluje **Tesseract OCR**
+- stáhne a nainstaluje **Tesseract OCR** přes winget
 - sestaví `AutoTyper.exe` s progress barem
 
-### 3. Spusť aplikaci
+### 2. Spusť aplikaci
 
 Hotový EXE najdeš v:
 ```
 dist\AutoTyper.exe
 ```
+
+> Tesseract se hledá automaticky — žádná ruční konfigurace cesty není potřeba.  
+> Pokud ho installer nenajde, zobrazí se chybová hláška s instrukcemi.
 
 ---
 
@@ -60,7 +55,7 @@ dist\AutoTyper.exe
 | 1 | Stiskni **F8** nebo klikni na **▶ SPUSTIT OCR** |
 | 2 | Přetáhni výběr přes oblast s textem |
 | 3 | Přepni do cílového pole (máš X sekund dle nastaveného čekání) |
-| 4 | AutoTyper začne psát |
+| 4 | AutoTyper začne psát — pokud klikneš zpět na AutoTyper, psaní se **pozastaví** dokud neklikneš jinam |
 
 ---
 
