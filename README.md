@@ -20,34 +20,35 @@ Vyber oblast na monitoru, OCR ji rozpozná a AutoTyper text postupně opíše do
 
 ## 📦 Instalace
 
-### 1. Prerekvizity
+### Prerekvizity
 
-- **Python 3.10+** — [python.org](https://www.python.org/downloads/)
-- **pip** — součástí Pythonu
+- **Python 3.10+** — [python.org](https://www.python.org/downloads/) — při instalaci zatrhnout **"Add Python to PATH"**
 - **winget** — součástí Windows 10/11
+
+### 1. Uprav cestu k Tesseractu
+
+Před spuštěním installeru otevři `Autotyper.py` a na **řádku 18** nastav svou cestu:
+
+```python
+pytesseract.pytesseract.tesseract_cmd = r"C:\Users\TVOJE_JMENO\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+```
+
+> Tato cesta se zapečuje přímo do EXE — je důležité ji nastavit před sestavením.
 
 ### 2. Spusť installer
 
 Klikni pravým tlačítkem na `installer.bat` → **Spustit jako správce** - `Není povinné`
 
 Installer automaticky:
-- nainstaluje všechny Python knihovny (`customtkinter`, `pillow`, `pytesseract`, `pynput`)
+- nainstaluje všechny Python knihovny (`customtkinter`, `pillow`, `pytesseract`, `pynput`, `pyinstaller`)
 - stáhne a nainstaluje **Tesseract OCR**
+- sestaví `AutoTyper.exe` s progress barem
 
-### 3. Nastav cestu k Tesseractu
+### 3. Spusť aplikaci
 
-V souboru `Autotyper.py` uprav řádek 18 tak, aby odpovídal tvé instalaci:
-
-```python
-pytesseract.pytesseract.tesseract_cmd = r"C:\Users\TVOJE_JMENO\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+Hotový EXE najdeš v:
 ```
-
-> Výchozí cesta po instalaci přes winget je zpravidla `C:\Users\<uživatel>\AppData\Local\Programs\Tesseract-OCR\tesseract.exe`
-
-### 4. Spusť aplikaci
-
-```bash
-python Autotyper.py
+dist\AutoTyper.exe
 ```
 
 ---
@@ -80,6 +81,7 @@ python Autotyper.py
 - [Pillow](https://python-pillow.org/)
 - [pytesseract](https://github.com/madmaze/pytesseract)
 - [pynput](https://github.com/moses-palmer/pynput)
+- [pyinstaller](https://pyinstaller.org/)
 - [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki)
 
 ---
