@@ -27,7 +27,7 @@ Vyber oblast na monitoru, OCR ji rozpozná a AutoTyper text postupně opíše do
 
 ### 1. Uprav cestu k Tesseractu
 
-Před spuštěním installeru otevři `Autotyper.py` a na **řádku 18** nastav svou cestu:
+Před spuštěním installeru otevři `Autotyper.py` a na **řádku 25** nastav svou cestu:
 
 ```python
 pytesseract.pytesseract.tesseract_cmd = r"C:\Users\TVOJE_JMENO\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
