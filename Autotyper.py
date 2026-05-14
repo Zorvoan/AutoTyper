@@ -1,4 +1,11 @@
 import tkinter as tk
+import sys
+import os
+
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), relative_path)
 import customtkinter as ctk
 from PIL import ImageGrab
 import pytesseract
@@ -15,7 +22,36 @@ ctypes.windll.user32.SetProcessDPIAware()
 # TESSERACT
 # ==================================================
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Users\User\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+def find_tesseract():
+    candidates = [
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+        r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+        os.path.join(os.environ.get("LOCALAPPDATA", ""), r"Programs\Tesseract-OCR\tesseract.exe"),
+        os.path.join(os.environ.get("APPDATA", ""),       r"Programs\Tesseract-OCR\tesseract.exe"),
+    ]
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
+    import shutil
+    found = shutil.which("tesseract")
+    if found:
+        return found
+    return None
+
+_tess = find_tesseract()
+if _tess:
+    pytesseract.pytesseract.tesseract_cmd = _tess
+    # Nastav TESSDATA_PREFIX na tessdata slozku vedle tesseract.exe
+    # Prepise pripadne spatne nastavenou systemovou env promennou
+    _tessdata = os.path.join(os.path.dirname(_tess), "tessdata")
+    if os.path.isdir(_tessdata):
+        os.environ["TESSDATA_PREFIX"] = _tessdata
+else:
+    import tkinter.messagebox as mb
+    mb.showerror(
+        "Tesseract nenalezen",
+        "Tesseract OCR nebyl nalezen.\n\nNainstaluj ho pres installer.bat\nnebo nastav cestu rucne v Autotyper.py."
+    )
 
 # ==================================================
 # THEME
@@ -46,6 +82,9 @@ kb = Controller()
 
 root = ctk.CTk()
 root.title("OCR AutoTyper")
+icon_path = resource_path("icon.ico")
+if os.path.exists(icon_path):
+    root.iconbitmap(icon_path)
 root.geometry("500x660")
 root.resizable(False, False)
 root.attributes("-topmost", True)
@@ -130,12 +169,32 @@ def clean_text(text):
     return text.strip()
 
 # ==================================================
+# FOCUS CHECK
+# ==================================================
+
+def is_autotyper_focused():
+    """Vrati True pokud ma fokus okno AutoTyperu (ne cilove pole)."""
+    try:
+        hwnd_focused = ctypes.windll.user32.GetForegroundWindow()
+        hwnd_root = ctypes.windll.user32.GetParent(root.winfo_id())
+        if hwnd_root == 0:
+            hwnd_root = root.winfo_id()
+        return hwnd_focused == hwnd_root
+    except Exception:
+        return False
+
+# ==================================================
 # SLOW TYPE
 # ==================================================
 
 
 def slow_type(text, speed):
     for char in text:
+        # Pokud je fokus na AutoTyperu, pozastav a cekej
+        while is_autotyper_focused():
+            set_status("⏸  Klikni do ciloveho pole pro pokracovani...", WARNING)
+            time.sleep(0.2)
+        set_status("⌨  Píšu...", SUCCESS)
         kb.type(char)
         time.sleep(speed)
 
@@ -175,7 +234,7 @@ def process_ocr():
 
     delay = delay_var.get()
     for remaining in range(int(delay), 0, -1):
-        set_status(f"⏱  Klikni do cílového pole... {remaining}s", WARNING)
+        set_status(f"⏱  Klikni do textového pole... {remaining}s", WARNING)
         time.sleep(1)
 
     set_status("⌨  Píšu...", SUCCESS)
