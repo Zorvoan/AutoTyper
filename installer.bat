@@ -11,7 +11,7 @@ echo     ██╔══██║██║   ██║   ██║   ██║  
 echo     ██║  ██║╚██████╔╝   ██║   ╚██████╔╝   ██║      ██║   ██║     ███████╗██║  ██║
 echo     ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝    ╚═╝      ╚═╝   ╚═╝     ╚══════╝╚═╝  ╚═╝
 echo.
-echo             OCR AutoTyper  -  Automaticky instalator  -  v1.0
+echo             OCR AutoTyper  -  Automaticky instalator  -  v1.2.0
 echo.
 echo     ══════════════════════════════════════════════════════════════════
 echo.
