@@ -199,6 +199,31 @@ filter_char = tk.StringVar(value="a")
 
 start_x = start_y = end_x = end_y = 0
 
+# ==================================================
+# CONFIG
+# ==================================================
+
+CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "autotyper_config.json")
+
+def load_config():
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def save_config(data):
+    try:
+        existing = load_config()
+        existing.update(data)
+        with open(CONFIG_PATH, "w") as f:
+            json.dump(existing, f)
+    except Exception:
+        pass
+
+_cfg = load_config()
+hotkey_var = tk.StringVar(value=_cfg.get("hotkey", "f8"))
+
 
 def select_area():
     global start_x, start_y, end_x, end_y
@@ -337,6 +362,8 @@ def process_ocr():
 
     if style_var.get() == "inverted":
         text = text[::-1]
+    elif style_var.get() == "no-spaces":
+        text = text.replace(" ", "")
 
     # Filtr slov podle pismenka
     if filter_on.get():
@@ -381,8 +408,16 @@ def start_thread():
 
 
 def on_press(key):
-    if key == keyboard.Key.f8:
-        start_thread()
+    try:
+        current = hotkey_var.get().lower()
+        # Porovnat s keyboard.Key (specialni klavesy jako f8)
+        if hasattr(keyboard.Key, current) and key == getattr(keyboard.Key, current):
+            start_thread()
+        # Porovnat s normalnimi znaky
+        elif hasattr(key, 'char') and key.char and key.char.lower() == current:
+            start_thread()
+    except Exception:
+        pass
 
 
 listener = keyboard.Listener(on_press=on_press)
@@ -405,14 +440,72 @@ ctk.CTkLabel(
     text_color=TEXT,
 ).pack(side="left")
 
-ctk.CTkLabel(
+def open_hotkey_dialog():
+    dialog = tk.Toplevel(root)
+    dialog.title("Nastav hotkey")
+    dialog.resizable(False, False)
+    dialog.configure(bg=BG)
+    dialog.attributes("-topmost", True)
+    dialog.grab_set()
+
+    # Vycentrovat na apku
+    dialog.update_idletasks()
+    dw, dh = 300, 160
+    rx = root.winfo_x() + (root.winfo_width()  - dw) // 2
+    ry = root.winfo_y() + (root.winfo_height() - dh) // 2
+    dialog.geometry(f"{dw}x{dh}+{rx}+{ry}")
+
+    ctk.CTkLabel(dialog,
+                 text="Stiskni klavesu pro spusteni OCR",
+                 font=ctk.CTkFont("Segoe UI", 12, "bold"),
+                 text_color=TEXT,
+                 fg_color=BG).pack(pady=(20, 4))
+
+    hint = ctk.CTkLabel(dialog,
+                 text="Ceka na stisk...",
+                 font=ctk.CTkFont("Segoe UI", 11),
+                 text_color=SUBTEXT,
+                 fg_color=BG)
+    hint.pack(pady=(0, 12))
+
+    def on_key(key):
+        try:
+            if hasattr(key, 'char') and key.char:
+                new_key = key.char.lower()
+            else:
+                new_key = key.name.lower()
+            hotkey_var.set(new_key)
+            save_config({"hotkey": new_key})
+            hotkey_btn.configure(text="  " + new_key.upper() + "  ")
+            hint.configure(text="Hotkey nastaven na: " + new_key.upper(), text_color=SUCCESS)
+        except Exception:
+            pass
+        tmp_listener.stop()
+        dialog.after(600, dialog.destroy)
+        return False
+
+    tmp_listener = keyboard.Listener(on_press=on_key)
+    tmp_listener.start()
+
+    ctk.CTkButton(dialog, text="Zrusit",
+                  fg_color=BORDER, hover_color=SURFACE,
+                  text_color=TEXT, corner_radius=8,
+                  command=lambda: (tmp_listener.stop(), dialog.destroy())
+    ).pack()
+
+hotkey_btn = ctk.CTkButton(
     header,
-    text="  F8  ",
-    font=ctk.CTkFont("Segoe UI", 11, "bold"),
+    text="  " + hotkey_var.get().upper() + "  ",
+    command=open_hotkey_dialog,
     fg_color=ACCENT,
+    hover_color=ACCENT2,
     text_color="#ffffff",
+    font=ctk.CTkFont("Segoe UI", 11, "bold"),
     corner_radius=6,
-).pack(side="right", pady=4)
+    height=28,
+    width=48,
+)
+hotkey_btn.pack(side="right", pady=4)
 
 # divider
 ctk.CTkFrame(root, height=1, fg_color=BORDER).pack(fill="x", padx=18, pady=(10, 6))
@@ -468,7 +561,7 @@ row.columnconfigure(1, weight=1)
 
 for col, (var, lbl, vals) in enumerate([
     (repeat_var, "Opakování",  ["1", "2", "3", "4", "5"]),
-    (style_var,  "Styl psaní", ["normal", "inverted"]),
+    (style_var,  "Styl psaní", ["normal", "inverted", "no-spaces"]),
 ]):
     card = ctk.CTkFrame(row, fg_color=SURFACE, corner_radius=10)
     card.grid(row=0, column=col, sticky="nsew", padx=(0, 4) if col == 0 else (4, 0))
