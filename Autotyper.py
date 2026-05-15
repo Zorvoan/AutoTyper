@@ -93,7 +93,7 @@ def show_update_banner(new_version, exe_url):
     left.pack(side="left", padx=14, pady=8)
 
     ctk.CTkLabel(left,
-                 text="Dostupna nova verze v" + new_version,
+                 text="Dostupná nová verze v" + new_version,
                  font=ctk.CTkFont("Segoe UI", 11, "bold"),
                  text_color="#c084fc").pack(anchor="w")
     ctk.CTkLabel(left,
